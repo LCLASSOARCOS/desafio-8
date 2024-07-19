@@ -1,4 +1,4 @@
-//app.js
+//app.js nuevo
 import express from 'express';
 import session from 'express-session';
 import exphbs from 'express-handlebars';

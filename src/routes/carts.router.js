@@ -2,18 +2,21 @@
 import express from "express";
 const router = express.Router();
 import CartsController from "../controllers/carts.controller.js";
-import authMiddleware from "../middleware/authmiddleware.js";
-const cartsController = new CartsController();
-router.use(authMiddleware);
+import authMiddleware from "../middleware/authMiddleware.js";
+import { userOnly } from "../middleware/authorizationMiddleware.js";
 import CartsService from "../service/carts.service.js";
-const cs = new CartsService();
-router.post('/', cartsController.addCart);
 
-router.delete('/:cid', cartsController.deleteCart);
-router.post('/:cid/product/:pid', cartsController.addProductToCart);
-router.get('/', cartsController.getCarts);
-router.get('/:cid', cartsController.getCartById);
-router.delete('/:cid/product/:pid', async (req, res) => {
+const cartsController = new CartsController();
+const cs = new CartsService();
+
+router.use(authMiddleware);
+
+router.post('/', userOnly, cartsController.addCart);
+router.delete('/:cid', userOnly, cartsController.deleteCart);
+router.post('/:cid/product/:pid', userOnly, cartsController.addProductToCart);
+router.get('/', userOnly, cartsController.getCarts);
+router.get('/:cid', userOnly, cartsController.getCartById);
+router.delete('/:cid/product/:pid', userOnly, async (req, res) => {
     try {
         const { cid, pid } = req.params;
         const result = await cs.deleteProductCart(cid, pid);
@@ -26,9 +29,8 @@ router.delete('/:cid/product/:pid', async (req, res) => {
         res.status(500).json({ status: 'error', message: error.message });
     }
 });
-router.put('/:cid', cartsController.updateCart);
-router.put('/:cid/product/:pid', cartsController.updateProductsQuantityCart);
-router.delete('/:cid', cartsController.emptyCart);
+router.put('/:cid', userOnly, cartsController.updateCart);
+router.put('/:cid/product/:pid', userOnly, cartsController.updateProductsQuantityCart);
+router.delete('/:cid', userOnly, cartsController.emptyCart);
 
-export default router;
-
+export default router
